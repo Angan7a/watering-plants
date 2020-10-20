@@ -56,28 +56,29 @@ const char* password = "vnet278750378";//type your password
         //WiFiManager wifiManager;
 	static void motorStop()
 	{
-		analogWrite(BUILTIN_LED, 1024);
+		analogWrite(LED_BUILTIN, 1024);
 		myMotor.stopWatering();
 		Serial.println("I'm going sleep to 1h");
-        	ESP.deepSleep(60*60e6);
+        	//ESP.deepSleep(60*60e6);
+		goSleep();
 	}
 	static void tick()
 	{
 		static int state = 1;
 	  if (state)
 	  {
-		  analogWrite(BUILTIN_LED, 1010);
+		  analogWrite(LED_BUILTIN, 1010);
 	  } else
 	  {
-		  analogWrite(BUILTIN_LED, 1024);
+		  analogWrite(LED_BUILTIN, 1024);
 	  }
 	  state = !state;
 
 	}
 	static void goSleep()
 	{
-	   Serial.println("I going to sleep for 1h");
-	   ESP.deepSleep(60*60e6);
+	   Serial.println("I going to sleep for 20 min");
+	   ESP.deepSleep(20*60e6);
 	}
     String getDateAndTime();
 public:

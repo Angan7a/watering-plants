@@ -5,7 +5,7 @@
 #include "ThingSpeak.h"
 
 
-#define ONE_WIRE_BUS 2  // DS18B20 on arduino pin2 corresponds to D4 on physical board
+#define ONE_WIRE_BUS 0  // DS18B20 on arduino pin2 corresponds to D4 on physical board
 OneWire oneWire(ONE_WIRE_BUS);
 DallasTemperature DS18B20(&oneWire);
 float prevTemp = 0;
@@ -30,6 +30,7 @@ delay(100);
  //String tempC = dtostrf(temp, 4, 1, buffer);//handled in sendTemp()
   Serial.print(" Temperature: ");
   Serial.println(temp);
+  delay(800);
 	myESP.saveTempToThinkSpeak(temp);
   //sendTeperatureTS(temp);
 

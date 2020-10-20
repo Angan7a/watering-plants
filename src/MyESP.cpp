@@ -3,8 +3,8 @@
 
 MyESP::MyESP()
 {
-  pinMode(BUILTIN_LED, OUTPUT);
-  analogWrite(BUILTIN_LED, 1024);
+  pinMode(LED_BUILTIN, OUTPUT);
+  analogWrite(LED_BUILTIN, 1024);
   measuer5minuts.attach(300, goSleep);
   EEPROM.begin(EEPROM_SIZE);
   time_water = EEPROM.read(0);
@@ -45,6 +45,7 @@ int MyESP::startWiFi()
   Serial.print("Connected to WiFi network with IP Address: ");
   Serial.println(WiFi.localIP());
   czas = getDateAndTime();
+  return 1;
 }
 
 String MyESP::getDateAndTime()
@@ -53,9 +54,7 @@ String MyESP::getDateAndTime()
     const char *host = "http://worldtimeapi.org/api/timezone/Europe/Warsaw";
     HTTPClient http; 
     http.begin(host);
-  http.begin(host);     //Specify request destination
   int httpCode = http.GET();            //Send the request
-  int nCon = 0;
   String payload;
 //  while (httpCode != 200)
 //  {
@@ -83,7 +82,7 @@ String MyESP::getDateAndTime()
 int MyESP::setStopWateringTime()
 {
 	ticker.detach();
-	analogWrite(BUILTIN_LED, 1020);
+	analogWrite(LED_BUILTIN, 1020);
 	ticker.attach(time_water, motorStop);
 	return 0;
 }
@@ -218,10 +217,10 @@ void MyESP::saveDataToThinkSpeak()
 
 	WiFiClient  client;
 	ThingSpeak.begin(client);
-	 #define SECRET_CH_ID 1111943                                 // replace 0000000 with your channel number
-	 #define SECRET_WRITE_APIKEY "G59OSUJY626RRWWJ"                           // replace XYZ with your channel write API Key
-	unsigned long myChannelNumber = SECRET_CH_ID;
-	const char * myWriteAPIKey = SECRET_WRITE_APIKEY;
+	 #define SECRET_CH_ID1 1111943                                 // replace 0000000 with your channel number
+	 #define SECRET_WRITE_APIKEY1 "G59OSUJY626RRWWJ"                           // replace XYZ with your channel write API Key
+	unsigned long myChannelNumber = SECRET_CH_ID1;
+	const char * myWriteAPIKey = SECRET_WRITE_APIKEY1;
 
 	int httpCode = ThingSpeak.writeField(myChannelNumber, 1,time_water , myWriteAPIKey);
 
