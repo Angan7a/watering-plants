@@ -13,8 +13,7 @@ MyESP::MyESP()
   Serial.begin(115200);
   delay(100);
   pinMode(pushButton,  INPUT_PULLUP  );
-  pinMode(IPButton,  INPUT_PULLUP  );
-//  pinMode(ledPin, OUTPUT);
+  pinMode(zapatka,  INPUT_PULLUP);
   ticker.attach(0.6, tick);
   czas = "";
 }
@@ -91,7 +90,20 @@ void MyESP::watering()
 {
 	setStopWateringTime();
 	startWatering();
+			saveWateringTime();
+			saveDataToThinkSpeak();
+			writeLastWateringH();
+	while(1)
+	{
+		if( !digitalRead(zapatka))
+		{
+			motorStop();
+			break;
+		}	
+		delay(100);
+	}
 }
+
 
 void MyESP::startWatering(){
 	myMotor.startWatering();

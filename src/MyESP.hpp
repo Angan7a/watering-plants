@@ -43,7 +43,7 @@ protected:
 	String pageIP = "";
 	//int ledPin = 2; // onboard LED
 	int pushButton = 13; // push button
-	int IPButton = 14; // button to show IP
+	int zapatka = 0; // 
 	int act_line;
 const char* ssid = "Vectra-WiFi-260244";//type your ssid
 const char* password = "vnet278750378";//type your password
@@ -58,8 +58,6 @@ const char* password = "vnet278750378";//type your password
 	{
 		analogWrite(LED_BUILTIN, 1024);
 		myMotor.stopWatering();
-		Serial.println("I'm going sleep to 1h");
-        	//ESP.deepSleep(60*60e6);
 		goSleep();
 	}
 	static void tick()
@@ -75,13 +73,13 @@ const char* password = "vnet278750378";//type your password
 	  state = !state;
 
 	}
+public:
 	static void goSleep()
 	{
-	   Serial.println("I going to sleep for 20 min");
+	   Serial.println("W GoSleep - I going to sleep for 20 min");
 	   ESP.deepSleep(20*60e6);
 	}
     String getDateAndTime();
-public:
     void blinkFast();
     static MyMotor myMotor;
     virtual int readEEPROM(int);

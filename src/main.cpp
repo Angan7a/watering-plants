@@ -43,12 +43,10 @@ delay(100);
 	}
 	else
 	{
-		if (myESP.checkIfWatering())
+		//if (myESP.checkIfWatering())
+		if (1)
 		{
 			myESP.watering();
-			myESP.saveWateringTime();
-			myESP.saveDataToThinkSpeak();
-			myESP.writeLastWateringH();
 		} else
 		{
 			Serial.println("I'm going sleep to 20 min");
