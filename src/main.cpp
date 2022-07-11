@@ -43,8 +43,7 @@ delay(100);
 	}
 	else
 	{
-		//if (myESP.checkIfWatering())
-		if (1)
+		if (myESP.checkIfWatering())
 		{
 			myESP.watering();
 		} else
