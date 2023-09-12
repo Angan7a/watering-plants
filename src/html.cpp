@@ -21,6 +21,7 @@ pageIP += EEPROM.read(503);
 pageIP += "</p>";
 pageIP += "</body>";
 pageIP += "</html>";
+return pageIP;
 
 }
 
