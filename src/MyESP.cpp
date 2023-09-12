@@ -1,5 +1,6 @@
 #include "MyESP.hpp"
 #include <ESP8266WiFi.h>
+#include <WiFiClient.h>
 
 MyESP::MyESP()
 {
@@ -9,12 +10,10 @@ MyESP::MyESP()
   EEPROM.begin(EEPROM_SIZE);
   time_water = EEPROM.read(0);
   h_water = EEPROM.read(1);
-  act_line = EEPROM.read(299);
-  Serial.begin(115200);
+ act_line = EEPROM.read(299);
   delay(100);
   pinMode(pushButton,  INPUT_PULLUP  );
   pinMode(IPButton,  INPUT_PULLUP  );
-//  pinMode(ledPin, OUTPUT);
   ticker.attach(0.6, tick);
   czas = "";
 }
@@ -36,24 +35,21 @@ void MyESP::blinkFast()
 int MyESP::startWiFi()
 {
   WiFi.begin(ssid, password);
-  Serial.println("Connecting");
   while(WiFi.status() != WL_CONNECTED) { 
         delay(500);
-        Serial.print(".");
   }
-  Serial.println("");
-  Serial.print("Connected to WiFi network with IP Address: ");
-  Serial.println(WiFi.localIP());
+  //Serial.println(WiFi.localIP());
   czas = getDateAndTime();
   return 1;
 }
 
 String MyESP::getDateAndTime()
 {
+	WiFiClient wifiClient;
 
     const char *host = "http://worldtimeapi.org/api/timezone/Europe/Warsaw";
     HTTPClient http; 
-    http.begin(host);
+    http.begin(wifiClient, host);
   int httpCode = http.GET();            //Send the request
   String payload;
 //  while (httpCode != 200)
@@ -82,8 +78,8 @@ String MyESP::getDateAndTime()
 int MyESP::setStopWateringTime()
 {
 	ticker.detach();
-	analogWrite(LED_BUILTIN, 1020);
-	ticker.attach(time_water, motorStop);
+	analogWrite(LED_BUILTIN, 0);
+	ticker.attach(2*time_water+10, motorStop);
 	return 0;
 }
 
@@ -94,7 +90,7 @@ void MyESP::watering()
 }
 
 void MyESP::startWatering(){
-	myMotor.startWatering();
+	myMotor.startWatering(time_water);
 }
 
 void MyESP::saveWateringTime()
@@ -225,57 +221,62 @@ void MyESP::saveDataToThinkSpeak()
 	int httpCode = ThingSpeak.writeField(myChannelNumber, 1,time_water , myWriteAPIKey);
 
 	 if (httpCode == 200) {
-	      Serial.println("Channel write successful.");
+	      //Serial.println("Channel write successful.");
 	 }
 	 else {
-	       Serial.println("Problem writing to channel. HTTP error code " + String(httpCode));
+	      // Serial.println("Problem writing to channel. HTTP error code " + String(httpCode));
 	 }
 	client.stop();
 }
 
-void MyESP::saveTempToThinkSpeak(float temp)
-{
 
-	WiFiClient  client;
-	ThingSpeak.begin(client);
-	 #define SECRET_CH_ID 1189056                                 // replace 0000000 with your channel number
-	 #define SECRET_WRITE_APIKEY "IHXD144KFX8UOY4B"                           // replace XYZ with your channel write API Key
-	unsigned long myChannelNumber = SECRET_CH_ID;
-	const char * myWriteAPIKey = SECRET_WRITE_APIKEY;
-
-	int httpCode = ThingSpeak.writeField(myChannelNumber, 1, temp , myWriteAPIKey);
-
-	 if (httpCode == 200) {
-	      Serial.println("Temperatue write successful.");
-	 }
-	 else {
-	       Serial.println("Problem writing to channel. HTTP error code " + String(httpCode));
-	 }
-	client.stop();
-}
-
-MyMotor::MyMotor(int STBY, int PWMA, int AIN1, int AIN2) 
-	: STBY_(STBY), PWMA_(PWMA), AIN1_(AIN1), AIN2_(AIN2)
+MyMotor::MyMotor(int STBY, int PWMA, int AIN1, int AIN2, int BIN1, int BIN2) 
+	: STBY_(STBY), PWMA_(PWMA), AIN1_(AIN1), AIN2_(AIN2), BIN1_(BIN1), BIN2_(BIN2)
 {
     pinMode(STBY_, OUTPUT);
     pinMode(PWMA_, OUTPUT);
     pinMode(AIN1_, OUTPUT);
     pinMode(AIN2_, OUTPUT);
+    pinMode(BIN1_, OUTPUT);
+    pinMode(BIN2_, OUTPUT);
 
-    digitalWrite(AIN1_, HIGH);
-    digitalWrite(AIN2_, LOW);
+    digitalWrite(AIN1_, LOW);
+    digitalWrite(AIN2_, HIGH);
+    digitalWrite(BIN1_, LOW);
+    digitalWrite(BIN2_, HIGH);
     analogWrite(PWMA_, 1023);
     digitalWrite(STBY_, LOW);
 }
 
-void MyMotor::startWatering()
+void MyMotor::startWatering_A(int time_w)
 {
-    Serial.println("Start watering");
     digitalWrite(STBY_, HIGH);
+
+    digitalWrite(AIN1_, HIGH);
+    digitalWrite(AIN2_, LOW);
+    digitalWrite(BIN2_, HIGH);
+
+    delay(time_w*1000);
+}
+
+void MyMotor::startWatering_B(int time_w)
+{
+    digitalWrite(STBY_, HIGH);
+
+    digitalWrite(AIN1_, HIGH);
+    digitalWrite(AIN2_, HIGH);
+    digitalWrite(BIN2_, LOW);
+
+    delay(time_w*1000);
+}
+
+void MyMotor::startWatering(int time_w)
+{
+	startWatering_A(time_w);
+	startWatering_B(time_w);
 }
 
 void MyMotor::stopWatering()
 {
-    digitalWrite(STBY_, LOW);
-    Serial.println("Stop watering");
+    digitalWrite(STBY_, LOW); 
 }
